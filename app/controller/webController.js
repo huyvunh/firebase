@@ -107,7 +107,7 @@ exports.chooseDataStudent = async (req, res, next) => {
         const students = await firestoreDB.collection('Students');
         const dataStudents = await students
             .where('age', '>=', 17)
-            .where('age', '<=', 22)
+            .where('age', '<', 22)
             .get();
 
         console.log(dataStudents)
@@ -133,16 +133,17 @@ exports.chooseDataStudent = async (req, res, next) => {
 
 //Xóa dữ liệu
 exports.deleteStudentById = async (req, res, next) => {
-    let body = req.body;
-    const id = body['id']
+    const id = req.body.id;
 
     try {
 
-        const students = await firestoreDB.collection('Students').doc(id).delete(id);
+        const studentRef = firestoreDB.collection('Students').doc(id);
+        const studentDoc = await studentRef.get();
+        await studentRef.delete();
 
 
         return res.status(200).json({
-            status: 200, message: 'Create User Success!'
+            status: 200, message: 'Delete User Success!'
         })
 
     } catch (error) {

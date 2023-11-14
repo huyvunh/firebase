@@ -1,3 +1,4 @@
+const { name } = require('ejs');
 const firestoreDB = require('../../config/Database/firestoreDatabase/firestore');
 const moment = require('moment-timezone');
 
@@ -138,8 +139,7 @@ exports.deleteStudentById = async (req, res, next) => {
     try {
 
         const studentRef = firestoreDB.collection('Students').doc(id);
-        const studentDoc = await studentRef.get();
-        await studentRef.delete();
+        const studentDoc = await studentRef.delete();
 
 
         return res.status(200).json({
@@ -159,7 +159,12 @@ exports.updateStudentById = async (req, res, next) => {
 
     try {
 
-        const students = await firestoreDB.collection('Students').doc(id).update(id);
+        const studentRef = firestoreDB.collection('Students').doc(id);
+        const studentDoc = await studentRef.update({
+            name: body['name'],
+            age: body['age'],
+            nameOfClass: body['nameOfClass']
+        });
 
 
         return res.status(200).json({
@@ -171,7 +176,7 @@ exports.updateStudentById = async (req, res, next) => {
             status: 400, message: 'Request fail!'
         })
     }
-}
+};
 
 // Tìm danh sách học sinh được tạo theo ngày tháng fromDate và toDate
 
@@ -196,7 +201,7 @@ exports.getStudentFromDate = async (req, res, next) => {
         const student = dataStudents.docs.map(doc => doc.data());
 
         return res.status(200).json({
-            status: 200, message: 'Create User Success!',
+            status: 200, message: 'Get User Success!',
             data: student
         })
 

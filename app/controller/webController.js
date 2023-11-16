@@ -6,7 +6,7 @@ exports.createStudent = async (req, res, next) => {
 
     let body = req.body;
     console.log(body)
-    const name = body['name'], age = parseInt(body['age']), nameOfClass = body['nameOfClass'];
+    const name = body['name'], age = parseInt(body['age']), nameOfClass = body['nameOfClass'], createdAtTimestmap = body['currentDate'];
 
     try {
 
@@ -182,26 +182,30 @@ exports.updateStudentById = async (req, res, next) => {
 
 exports.getStudentFromDate = async (req, res, next) => {
     let body = req.body;
-    const id = body['id']
+    const startDate = req.body.startDate;
+    const toDate = req.body.toDate;
 
     try {
 
-        const startDate = req.body.startDate;
-        const toDate = req.body.toDate;
+        const start = moment.tz(startDate, 'MM/DD/YYYY HH:mm:ss', 'UTC').unix();
+        const to = moment.tz(toDate, 'MM/DD/YYYY HH:mm:ss', 'UTC').unix();
 
-        const start = moment.tz(startDate, 'MM/DD/YYYY', 'Asia/Ho_Chi_Minh').unix();
-        const to = moment.tz(toDate, 'MM/DD/YYYY', 'Asia/Ho_Chi_Minh').unix();
-
-        const students = firestoreDB.collection('Students');
+        const students = await firestoreDB.collection('Students');
         const dataStudents = await students
             .where('createdAtTimestmap', '>=', start)
             .where('createdAtTimestmap', '<=', to)
             .get();
 
-        const student = dataStudents.docs.map(doc => doc.data());
+        let student = [];
+        if (!dataStudents.empty) {
+            dataStudents.forEach(doc => {
+                const stu = doc.data();
+                student.push(stu)
+            });
+        }
 
         return res.status(200).json({
-            status: 200, message: 'Get User Success!',
+            status: 200, message: 'Get Student Success!',
             data: student
         })
 

@@ -166,7 +166,6 @@ exports.updateStudentById = async (req, res, next) => {
             nameOfClass: body['nameOfClass']
         });
 
-
         return res.status(200).json({
             status: 200, message: 'Create User Success!'
         })
@@ -182,18 +181,20 @@ exports.updateStudentById = async (req, res, next) => {
 
 exports.getStudentFromDate = async (req, res, next) => {
     let body = req.body;
-    const startDate = req.body.startDate;
-    const toDate = req.body.toDate;
+    const startDate = moment.tz(`${req.body.startDate} 00:00:00`, 'MM/DD/YYYY HH:mm:ss', 'Asia/Ho_Chi_Minh');
+    const toDate = moment.tz(`${req.body.toDate} 23:59:59`, 'MM/DD/YYYY HH:mm:ss', 'Asia/Ho_Chi_Minh');
+    console.log(startDate, toDate)
+
+    const startDateTimeStamp = moment.tz(startDate, 'MM/DD/YYYY HH:mm:ss', 'Asia/Ho_Chi_Minh').unix();
+    const toDateTimeStamp = moment.tz(toDate, 'MM/DD/YYYY HH:mm:ss', 'Asia/Ho_Chi_Minh').unix();
+    console.log(startDateTimeStamp, toDateTimeStamp)
 
     try {
 
-        const start = moment.tz(startDate, 'MM/DD/YYYY HH:mm:ss', 'UTC').unix();
-        const to = moment.tz(toDate, 'MM/DD/YYYY HH:mm:ss', 'UTC').unix();
-
         const students = await firestoreDB.collection('Students');
         const dataStudents = await students
-            .where('createdAtTimestmap', '>=', start)
-            .where('createdAtTimestmap', '<=', to)
+            .where('createdAtTimestmap', '>=', startDateTimeStamp)
+            .where('createdAtTimestmap', '<=', toDateTimeStamp)
             .get();
 
         let student = [];
@@ -203,7 +204,7 @@ exports.getStudentFromDate = async (req, res, next) => {
                 student.push(stu)
             });
         }
-
+        console.log(student)
         return res.status(200).json({
             status: 200, message: 'Get Student Success!',
             data: student

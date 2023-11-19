@@ -71,18 +71,10 @@ exports.getStudentById = async (req, res, next) => {
     const id = body['id']
 
     try {
-        //fromDate , toDate
 
         const students = firestoreDB.collection('Students');
         const dataStudents = await students
-            //  .where('id', '==', id)
-            // .where('createdAtTimestmap', '>=', fromDate)
-            // .where('createdAtTimestmap', '<=', toDate)
             .get();
-        // const dataStudents = await students
-        //     .where('age', '>=', 18)
-        //     .get();
-
 
         const student = dataStudents.docs[0].data();
 
